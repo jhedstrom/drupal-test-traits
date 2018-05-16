@@ -14,43 +14,49 @@ trait DrupalSetup
    *
    * @var \Drupal\Core\Entity\EntityInterface[]
    */
-  protected $cleanupEntities = [];
+    protected $cleanupEntities = [];
 
   /**
    * Bootstrap Drupal. Call this from your setUp() method.
    */
-  public function setupDrupal()
-  {
-    // Bootstrap Drupal so we can use Drupal's built in functions.
-    $finder = new DrupalFinder();
-    $finder->locateRoot(getcwd());
-    $classLoader = include $finder->getVendorDir() . '/autoload.php';
-    $base_url = getenv('DTT_BASE_URL');
-    $parsed_url = parse_url($base_url);
-    $server = [
-      'SCRIPT_FILENAME' => getcwd() . '/index.php',
-      'SCRIPT_NAME' => isset($parsed_url['path']) ? $parsed_url['path'] . 'index.php' : '/index.php',
-    ];
-    $request = Request::create($base_url, 'GET', [], [], [], $server);
-    $kernel = DrupalKernel::createFromRequest($request, $classLoader, 'existing-site-testcase', false, $finder->getDrupalRoot());
-    chdir(DRUPAL_ROOT);
-    $kernel->prepareLegacyRequest($request);
+    public function setupDrupal()
+    {
+      // Bootstrap Drupal so we can use Drupal's built in functions.
+        $finder = new DrupalFinder();
+        $finder->locateRoot(getcwd());
+        $classLoader = include $finder->getVendorDir() . '/autoload.php';
+        $base_url = getenv('DTT_BASE_URL');
+        $parsed_url = parse_url($base_url);
+        $server = [
+        'SCRIPT_FILENAME' => getcwd() . '/index.php',
+        'SCRIPT_NAME' => isset($parsed_url['path']) ? $parsed_url['path'] . 'index.php' : '/index.php',
+        ];
+        $request = Request::create($base_url, 'GET', [], [], [], $server);
+        $kernel = DrupalKernel::createFromRequest(
+            $request,
+            $classLoader,
+            'existing-site-testcase',
+            false,
+            $finder->getDrupalRoot()
+        );
+        chdir(DRUPAL_ROOT);
+        $kernel->prepareLegacyRequest($request);
 
-    // Register stream wrappers.
-    $kernel->getContainer()->get('stream_wrapper_manager')->register();
-  }
+      // Register stream wrappers.
+        $kernel->getContainer()->get('stream_wrapper_manager')->register();
+    }
 
   /**
    * Delete marked entities. Call this from your case's tearDown() method.
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function tearDownDrupal()
-  {
-    foreach ($this->cleanupEntities as $entity) {
-        $entity->delete();
+    public function tearDownDrupal()
+    {
+        foreach ($this->cleanupEntities as $entity) {
+            $entity->delete();
+        }
     }
-  }
 
   /**
    * Mark an entity for deletion.
@@ -61,11 +67,8 @@ trait DrupalSetup
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   Entity to delete.
    */
-  protected function markEntityForCleanup(EntityInterface $entity) {
-    $this->cleanupEntities[] = $entity;
-  }
-
-
-
-
+    protected function markEntityForCleanup(EntityInterface $entity)
+    {
+        $this->cleanupEntities[] = $entity;
+    }
 }
